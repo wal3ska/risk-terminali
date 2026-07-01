@@ -1,15 +1,15 @@
-# 📈 Risk Terminali
+#  Risk Terminali
 
 **Canlı Uygulama:** [risk-terminali.streamlit.app](https://risk-terminali.streamlit.app/)
 
 Risk Terminali, Borsa İstanbul (BIST 100) yatırımcıları ve emtia takipçileri için geliştirilmiş, portföy risklerini istatistiksel yöntemlerle analiz eden ve kriz senaryolarını simüle eden bir web uygulamasıdır. 
 
-> ⚠️ **Önemli Uyarı:** 
+>  **Önemli Uyarı:** 
 > Sistemde şu an için yalnızca belirli BIST 100 hisseleri ve temel emtialar bulunmaktadır. Projenin veri seti zamanla genişletilecek ve tüm BIST 100 hisseleri ile çeşitli enstrümanlar platforma entegre edilecektir.
 
 ---
 
-## 🎯 Projenin Amacı ve Ölçülen Metrikler
+## Projenin Amacı ve Ölçülen Metrikler
 
 Borsada getiri odaklı düşünmek kadar, riski yönetmek de sürdürülebilir büyümenin (özellikle uzun vadeli ve temettü odaklı yatırımların) temelidir. Bu proje, portföyünüzün "karanlık yüzünü" görmenizi sağlar. Sistem şu metrikleri hesaplar:
 
@@ -17,7 +17,7 @@ Borsada getiri odaklı düşünmek kadar, riski yönetmek de sürdürülebilir b
 *   **Stres Testleri:** "Piyasa %10 çökerse ne olur?", "Tarihsel bir kriz tekrar yaşanırsa portföyüm nasıl tepki verir?" gibi ekstrem kara gün (tail-risk) senaryolarının simülasyonudur.
 *   **Korelasyon ve Kovaryans Matrisleri:** Portföydeki varlıkların birbirlerine göre nasıl hareket ettiğini (beraber mi düşüyorlar, zıt mı hareket ediyorlar?) matematiksel olarak ortaya koyar.
 
-## 💼 Portföye Katkıları
+## Portföye Katkıları
 
 Bu terminal, duygusal kararlar yerine veri odaklı risk yönetimi yapmanızı sağlar:
 1.  **Gerçekçi Beklenti Yönetimi:** Taşıdığınız riskin boyutunu TL/Yüzde bazında somutlaştırır.
@@ -26,7 +26,7 @@ Bu terminal, duygusal kararlar yerine veri odaklı risk yönetimi yapmanızı sa
 
 ---
 
-## 📊 Test Sonuçları Nasıl Yorumlanmalı?
+## Test Sonuçları Nasıl Yorumlanmalı?
 
 Terminalden aldığınız sonuçları doğru okumak, portföyünüzü yeniden dengelerken size yol gösterecektir:
 
@@ -46,7 +46,7 @@ Stres testi sonuçları, portföyünüzün "Kırılganlık" haritasıdır. Eğer
 
 ---
 
-## 🚀 Gelecekte Eklenecek Özellikler (Roadmap)
+##  Gelecekte Eklenecek Özellikler
 
 Proje sürekli olarak geliştirilmeye devam etmektedir. Yakın gelecekte planlanan bazı güncellemeler:
 
@@ -64,7 +64,7 @@ Projeyi kendi bilgisayarınızda çalıştırmak isterseniz:
 
 ```bash
 # Repoyu klonlayın
-git clone [https://github.com/anilserdarunal/risk-terminali.git](https://github.com/anilserdarunal/risk-terminali.git)
+git clone [https://github.com/wal3ska/risk-terminali.git](https://github.com/wal3ska/risk-terminali.git)
 
 # Gerekli kütüphaneleri yükleyin
 pip install -r requirements.txt
