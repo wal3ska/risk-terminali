@@ -64,7 +64,7 @@ Projeyi kendi bilgisayarınızda çalıştırmak isterseniz:
 
 ```bash
 # Repoyu klonlayın
-git clone [https://github.com/usenyilmaz/risk-terminali.git](https://github.com/usenyilmaz/risk-terminali.git)
+git clone [https://github.com/anilserdarunal/risk-terminali.git](https://github.com/anilserdarunal/risk-terminali.git)
 
 # Gerekli kütüphaneleri yükleyin
 pip install -r requirements.txt
