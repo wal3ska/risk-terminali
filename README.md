@@ -75,7 +75,3 @@ plotly
 ## Yasal Uyarı
 
 Bu uygulama yalnızca eğitim ve kişisel analiz amaçlıdır; yatırım danışmanlığı değildir. Yatırım danışmanlığı hizmeti, yetkili kuruluşlarca kişilerin risk ve getiri tercihleri dikkate alınarak sunulur. Burada yer alan analizler genel niteliktedir ve alım satım kararlarına tek başına dayanak oluşturmaz.
-
-- [ ] Parametrik ve Monte Carlo VaR yöntemleri
-- [ ] Kendi domain altında deploy (Docker + Nginx + SSL)
-- [ ] Mobil uygulama (Flutter)
