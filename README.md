@@ -1,73 +1,81 @@
-#  Risk Terminali
+# Portföy & Risk Terminali
 
-**Canlı Uygulama:** [risk-terminali.streamlit.app](https://risk-terminali.streamlit.app/)
+BIST, ABD hisseleri, kripto paralar, emtialar, endeksler ve tahvillerden oluşan çoklu varlık portföyleri için Streamlit tabanlı risk analizi ve portföy takip uygulaması. Tüm analizler TL bazında yapılır; dolar bazlı varlıklar USD/TRY kuru ile çevrildiğinden kur riski hesaplamalara dahildir.
 
-Risk Terminali, Borsa İstanbul (BIST 100) yatırımcıları ve emtia takipçileri için geliştirilmiş, portföy risklerini istatistiksel yöntemlerle analiz eden ve kriz senaryolarını simüle eden bir web uygulamasıdır. 
+## Özellikler
 
->  **Önemli Uyarı:** 
-> Sistemde şu an için yalnızca belirli BIST 100 hisseleri ve temel emtialar bulunmaktadır. Projenin veri seti zamanla genişletilecek ve tüm BIST 100 hisseleri ile çeşitli enstrümanlar platforma entegre edilecektir.
+### Portföy Takip
+- Adet ve ortalama maliyet girişiyle pozisyon bazlı kar/zarar takibi
+- Maliyeti bilinmeyen pozisyonlar için "Maliyeti bilmiyorum" seçeneği: pozisyon K/Z hesabından çıkarılır, risk analizine dahil kalır
+- Varlık ve kategori bazında portföy dağılımı (donut grafik)
+- Toplam değer, toplam maliyet ve K/Z metrikleri ile canlı USD/TRY kuru
 
----
+### Varlık Evreni
+- **BIST:** BIST 100 hazır listesi + serbest kod girişiyle tüm Borsa İstanbul hisseleri
+- **ABD Hisseleri:** S&P 500 / Nasdaq / DJIA'nın öne çıkan isimleri + serbest sembol girişi
+- **Kripto:** BTC, ETH, SOL ve diğer büyük coinler
+- **Emtia:** Altın, gümüş, Brent, WTI, doğalgaz, bakır (vadeli kontrat fiyatları)
+- **Endeksler:** S&P 500, Nasdaq, Dow Jones, BIST 100, BIST 30
+- **Tahvil/Bono:** Nominal, piyasa fiyatı, kupon oranı, kupon sıklığı, vade ve YTM girişiyle 5 adede kadar sabit getirili pozisyon
 
-## Projenin Amacı ve Ölçülen Metrikler
+### Risk Analizi
+- **Tarihsel Simülasyon VaR (%99):** Portföyün TL bazlı günlük getiri dağılımı üzerinden maksimum beklenen kayıp ve getiri histogramı
+- **Durasyon Analizi:** Tahvil başına Macaulay ve Modified Duration, DV01; sepet düzeyinde değer ağırlıklı durasyon ve portföy katkısı
+- **Faiz Şoku Senaryoları:** -100 / +100 / +300 / +500 baz puan paralel kayma etkisi
+- **Korelasyon & Çeşitlendirme:** Varlık korelasyon matrisi ve çeşitlendirme faydasının TL karşılığı
 
-Borsada getiri odaklı düşünmek kadar, riski yönetmek de sürdürülebilir büyümenin (özellikle uzun vadeli ve temettü odaklı yatırımların) temelidir. Bu proje, portföyünüzün "karanlık yüzünü" görmenizi sağlar. Sistem şu metrikleri hesaplar:
+### Stres Testleri
+Türkiye / Uluslararası filtresiyle 14 tarihsel kriz senaryosu:
 
-*   **Riske Maruz Değer (VaR - Value at Risk):** Normal piyasa koşulları altında, belirli bir zaman diliminde ve belirli bir güven aralığında portföyün uğrayabileceği *maksimum olası zararı* ölçer.
-*   **Stres Testleri:** "Piyasa %10 çökerse ne olur?", "Tarihsel bir kriz tekrar yaşanırsa portföyüm nasıl tepki verir?" gibi ekstrem kara gün (tail-risk) senaryolarının simülasyonudur.
-*   **Korelasyon ve Kovaryans Matrisleri:** Portföydeki varlıkların birbirlerine göre nasıl hareket ettiğini (beraber mi düşüyorlar, zıt mı hareket ediyorlar?) matematiksel olarak ortaya koyar.
+| Bölge | Senaryolar |
+|---|---|
+| Türkiye | 2018 Brunson Krizi · 2021 KKM Döviz Krizi · 2023 Seçim Sonrası TL Ayarlaması |
+| Uluslararası | 2008 Küresel Finans Krizi · 2011 Avrupa Borç Krizi · 2013 Taper Tantrum · 2015 Çin Devalüasyonu · 2018 Q4 Fed Satışı · 2020 Covid-19 · 2022 Fed Faiz Şoku · 2022 Kripto Kışı · 2023 SVB Krizi · 2024 Yen Carry Trade · 2025 Nisan Tarife Şoku |
 
-## Portföye Katkıları
-
-Bu terminal, duygusal kararlar yerine veri odaklı risk yönetimi yapmanızı sağlar:
-1.  **Gerçekçi Beklenti Yönetimi:** Taşıdığınız riskin boyutunu TL/Yüzde bazında somutlaştırır.
-2.  **Optimum Çeşitlendirme (Diversifikasyon):** Sadece "farklı hisseler" almanın ötesine geçerek, matematiksel olarak birbirini dengeleyen varlıkları seçmenize yardımcı olur.
-3.  **Krizlere Hazırlık:** Olası piyasa şoklarında portföyünüzün ne kadar eriyebileceğini önceden bilmek, panik satışlarının önüne geçer.
-
----
-
-## Test Sonuçları Nasıl Yorumlanmalı?
-
-Terminalden aldığınız sonuçları doğru okumak, portföyünüzü yeniden dengelerken size yol gösterecektir:
-
-### 1. VaR (Riske Maruz Değer) Yorumlama
-Örneğin; sistemin ürettiği **"%95 Güven Aralığında Günlük VaR: -5.000 TL"** sonucu şu anlama gelir:
-*"Normal piyasa koşullarında, 100 işlem gününün 95'inde günlük kaybım 5.000 TL'yi aşmayacaktır."*
-Bunun tersten okuması ise şudur: Kalan %5'lik (ekstrem) günlerde kaybınız 5.000 TL'den daha fazla olacaktır.
-
-### 2. Korelasyon Matrisi Yorumlama (Varlıkların Bağımsızlığı)
-Korelasyon, -1.0 ile +1.0 arasında değer alır. Gerçek bir portföy çeşitlendirmesi için varlıkların sürekli aynı yöne gitmemesi gerekir.
-*   **+0.7 ile +1.0 (Yüksek Korelasyon):** Varlıklar neredeyse aynı anda yükselip düşer (Örn: İki farklı otomotiv şirketi). Etkili bir çeşitlendirme sağlamaz.
-*   **-0.3 ile +0.3 (Düşük Korelasyon / Bağımsızlık):** Varlıklar birbirinden *bağımsız* hareket eder. Portföyünüzdeki çapraz varlıkların (hisse-emtia veya farklı sektör hisseleri) bu aralıkta olması, riskin iyi dağıtıldığını gösterir.
-*   **-1.0 ile -0.5 (Negatif Korelasyon):** Biri düşerken diğeri yükselir. Borsa düşerken portföyü koruyacak (hedge) varlıklar bu aralıktan seçilebilir (Örn: BIST hissesi vs. Altın/Dolar).
-
-### 3. Stres Testi Yorumlama
-Stres testi sonuçları, portföyünüzün "Kırılganlık" haritasıdır. Eğer sistem, endeksteki %10'luk bir düşüşte portföyünüzün %15 eriyeceğini söylüyorsa, portföyünüzün piyasa dalgalanmalarına karşı yüksek hassasiyete (yüksek beta) sahip olduğunu anlarsınız.
-
----
-
-##  Gelecekte Eklenecek Özellikler
-
-Proje sürekli olarak geliştirilmeye devam etmektedir. Yakın gelecekte planlanan bazı güncellemeler:
-
-*   [ ] **Tam BIST 100 Entegrasyonu:** Endeksteki tüm hisselerin veritabanına dahil edilmesi.
-*   [ ] **Monte Carlo Simülasyonu:** Rastgele fiyat yürüyüşü modelleriyle geleceğe dönük binlerce farklı senaryonun test edilmesi.
-*   [ ] **Dinamik Portföy Optimizasyonu:** Modern Portföy Teorisi (Markowitz) kullanılarak, istenen risk seviyesine göre optimum hisse ağırlıklarının otomatik önerilmesi.
-*   [ ] **Kripto Varlıklar:** İsteğe bağlı olarak risk ölçümlerine Bitcoin ve diğer majör kripto paraların entegrasyonu.
-*   [ ] **Gelişmiş Backtest Modülü:** Geçmiş veriler üzerinde belirli risk algoritmalarının nasıl performans gösterdiğinin test edilmesi.
-
----
-
-### Kurulum (Lokalde Çalıştırmak İçin)
-
-Projeyi kendi bilgisayarınızda çalıştırmak isterseniz:
+## Kurulum
 
 ```bash
-# Repoyu klonlayın
-git clone [https://github.com/wal3ska/risk-terminali.git](https://github.com/wal3ska/risk-terminali.git)
-
-# Gerekli kütüphaneleri yükleyin
+git clone <repo-url>
+cd risk-terminali
 pip install -r requirements.txt
+streamlit run risk_terminali_v4.py
+```
 
-# Streamlit uygulamasını başlatın
-streamlit run app.py
+**requirements.txt**
+```
+streamlit
+yfinance
+pandas
+numpy
+matplotlib
+plotly
+```
+
+## Kullanım
+
+1. Yan menüden kategori filtresi ile varlıklarını seç (listede olmayan BIST veya global sembolleri elle ekleyebilirsin)
+2. Her pozisyon için adet ve ortalama maliyet gir; maliyeti hatırlamıyorsan "Maliyeti bilmiyorum" işaretle
+3. Tahvil eklemek için nominal tutar, piyasa fiyatı (100 nominal başına), kupon bilgileri ve YTM gir
+4. Sekmeler arasında gezerek portföy takibi, VaR, korelasyon ve stres testi sonuçlarını incele
+
+## Metodoloji Notları
+
+- **VaR:** Tarihsel Simülasyon yöntemi, logaritmik günlük getiriler, %99 güven düzeyi (1. yüzdelik). Yalnızca piyasa fiyat serisi olan varlıkları kapsar; tahvil faiz riski durasyon ile ayrıca ölçülür.
+- **Kur dönüşümü:** USD bazlı varlıkların fiyat serileri `TRY=X` kuru ile TL'ye çevrilir; getiri serileri bu nedenle kur oynaklığını da içerir.
+- **Durasyon:** Kupon akışlarının bugünkü değerinden Macaulay Duration, oradan Modified Duration türetilir. Faiz şoku etkileri birinci derece (durasyon) yaklaşımıdır, konveksite içermez.
+- **Stres testleri:** Senaryo penceresindeki gerçekleşmiş getiriler mevcut portföy ağırlıklarına uygulanır. Senaryo tarihinde işlem görmeyen varlıklar testten düşülür ve ayrıca raporlanır.
+
+## Sınırlamalar
+
+- Veri kaynağı yfinance'tir (resmi olmayan Yahoo Finance API); veri gecikmeli olabilir ve yoğun kullanımda rate limit uygulanabilir. Ticari kullanım için lisanslı bir veri kaynağına geçilmelidir.
+- BIST hisselerinin çoğunda Yahoo verisi 2010 öncesine gitmediğinden 2008 senaryosu ağırlıklı olarak ABD varlıklarında çalışır.
+- Tahvil değerlemesi birikmiş kupon faizini ihmal eder; dolar bazlı pozisyonlarda maliyet güncel kurla çevrildiğinden kur farkı kazancı K/Z'ye yansımaz.
+- Kripto 7/24, hisse senetleri 5 gün işlem gördüğünden ortak getiri serisi yalnızca ortak işlem günlerini kapsar.
+
+## Yasal Uyarı
+
+Bu uygulama yalnızca eğitim ve kişisel analiz amaçlıdır; yatırım danışmanlığı değildir. Yatırım danışmanlığı hizmeti, yetkili kuruluşlarca kişilerin risk ve getiri tercihleri dikkate alınarak sunulur. Burada yer alan analizler genel niteliktedir ve alım satım kararlarına tek başına dayanak oluşturmaz.
+
+- [ ] Parametrik ve Monte Carlo VaR yöntemleri
+- [ ] Kendi domain altında deploy (Docker + Nginx + SSL)
+- [ ] Mobil uygulama (Flutter)
