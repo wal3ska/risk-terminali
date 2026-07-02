@@ -1,6 +1,6 @@
 # Portföy & Risk Terminali
 
-BIST, ABD hisseleri, kripto paralar, emtialar, endeksler ve tahvillerden oluşan çoklu varlık portföyleri için Streamlit tabanlı risk analizi ve portföy takip uygulaması. Tüm analizler TL bazında yapılır; dolar bazlı varlıklar USD/TRY kuru ile çevrildiğinden kur riski hesaplamalara dahildir.
+BIST, ABD hisseleri, kripto paralar, emtialar, endeksler, TEFAS fonları ve tahvillerden oluşan çoklu varlık portföyleri için Streamlit tabanlı risk analizi ve portföy takip uygulaması. Tüm analizler TL bazında yapılır; dolar bazlı varlıklar USD/TRY kuru ile çevrildiğinden kur riski hesaplamalara dahildir.
 
 ## Özellikler
 
@@ -17,6 +17,7 @@ BIST, ABD hisseleri, kripto paralar, emtialar, endeksler ve tahvillerden oluşan
 - **Emtia:** Altın, gümüş, Brent, WTI, doğalgaz, bakır (vadeli kontrat fiyatları)
 - **Endeksler:** S&P 500, Nasdaq, Dow Jones, BIST 100, BIST 30
 - **Tahvil/Bono:** Nominal, piyasa fiyatı, kupon oranı, kupon sıklığı, vade ve YTM girişiyle 5 adede kadar sabit getirili pozisyon
+- **TEFAS fonları:** TEFAS'ta alıma açık tüm fonlar
 
 ### Risk Analizi
 - **Tarihsel Simülasyon VaR (%99):** Portföyün TL bazlı günlük getiri dağılımı üzerinden maksimum beklenen kayıp ve getiri histogramı
@@ -71,6 +72,7 @@ plotly
 - BIST hisselerinin çoğunda Yahoo verisi 2010 öncesine gitmediğinden 2008 senaryosu ağırlıklı olarak ABD varlıklarında çalışır.
 - Tahvil değerlemesi birikmiş kupon faizini ihmal eder; dolar bazlı pozisyonlarda maliyet güncel kurla çevrildiğinden kur farkı kazancı K/Z'ye yansımaz.
 - Kripto 7/24, hisse senetleri 5 gün işlem gördüğünden ortak getiri serisi yalnızca ortak işlem günlerini kapsar.
+- TEFAS verileri sadece son 5 yılı kapsar.
 
 ## Yasal Uyarı
 
