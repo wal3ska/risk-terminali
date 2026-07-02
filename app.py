@@ -214,7 +214,15 @@ tickers_to_fetch = {ASSET_INFO[n]["ticker"] for n in yahoo_names} | {"TRY=X"}
 
 @st.cache_data(ttl=900)
 def fetch_data(ticker_list):
-    data = yf.download(list(ticker_list), start="2000-01-01", progress=False, auto_adjust=True)
+    import time
+    data = None
+    for attempt in range(3):
+        data = yf.download(list(ticker_list), start="2000-01-01", progress=False, auto_adjust=True)
+        if data is not None and not data.empty:
+            break
+        time.sleep(2 * (attempt + 1))
+    if data is None or data.empty:
+        raise RuntimeError("Yahoo Finance veri döndürmedi.")
     close = data["Close"]
     if isinstance(close, pd.Series):
         close = close.to_frame(name=ticker_list[0])
@@ -244,8 +252,23 @@ def fetch_tefas(fund_codes):
         result[code] = series
     return result
 
-raw_prices = fetch_data(tuple(sorted(tickers_to_fetch)))
+def data_error(message):
+    st.error(message)
+    st.caption("Yahoo Finance, özellikle Streamlit Cloud gibi paylaşımlı sunucularda istekleri geçici olarak sınırlayabilir. Genellikle 1-2 dakika içinde düzelir.")
+    if st.button("Yeniden Dene"):
+        st.cache_data.clear()
+        st.rerun()
+    st.stop()
+
+try:
+    raw_prices = fetch_data(tuple(sorted(tickers_to_fetch)))
+except Exception:
+    data_error("Piyasa verisi çekilemedi.")
+
 raw_prices.index = pd.to_datetime(raw_prices.index)
+
+if "TRY=X" not in raw_prices.columns or raw_prices["TRY=X"].dropna().empty:
+    data_error("USD/TRY kuru çekilemedi. Kur olmadan TL bazlı analiz yapılamıyor.")
 
 usdtry = raw_prices["TRY=X"].ffill()
 fx_now = float(usdtry.dropna().iloc[-1])
