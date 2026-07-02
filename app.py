@@ -100,22 +100,51 @@ selected_display_names = st.sidebar.multiselect(
     default=[]
 )
 
+def custom_code_input(state_key, input_label, button_label, placeholder):
+    if state_key not in st.session_state:
+        st.session_state[state_key] = []
+    text = st.text_input(input_label, placeholder=placeholder, key=f"in_{state_key}")
+    if st.button(button_label, key=f"btn_{state_key}"):
+        for code in [c.strip().upper() for c in text.split(",") if c.strip()]:
+            if code not in st.session_state[state_key]:
+                st.session_state[state_key].append(code)
+        st.session_state[f"keep_{state_key}"] = st.session_state[state_key].copy()
+    if st.session_state[state_key]:
+        if f"keep_{state_key}" not in st.session_state:
+            st.session_state[f"keep_{state_key}"] = st.session_state[state_key].copy()
+        kept = st.multiselect("Eklenenler (kaldırmak için işareti silin):",
+                              options=st.session_state[state_key],
+                              key=f"keep_{state_key}")
+        st.session_state[state_key] = list(kept)
+    return st.session_state[state_key]
+
 with st.sidebar.expander("Listede Olmayan Varlık Ekle"):
-    custom_bist = st.text_input("BIST Kodu (virgülle ayırın)", placeholder="ör: MPARK, EBEBK")
-    custom_global = st.text_input("Global Sembol (Yahoo formatı)", placeholder="ör: LLY, SHIB-USD")
+    bist_codes = custom_code_input("custom_bist", "BIST Kodu (virgülle ayırın)", "BIST Ekle", "ör: MPARK, EBEBK")
+    global_codes = custom_code_input("custom_global", "Global Sembol (Yahoo formatı)", "Sembol Ekle", "ör: LLY, SHIB-USD")
 
-    for code in [c.strip().upper() for c in custom_bist.split(",") if c.strip()]:
-        name = code.replace(".IS", "")
-        if name not in ASSET_INFO:
-            ASSET_INFO[name] = {"ticker": f"{name}.IS", "cur": "TRY", "cat": "BIST"}
-        if name not in selected_display_names:
-            selected_display_names.append(name)
+for code in bist_codes:
+    name = code.replace(".IS", "")
+    if name not in ASSET_INFO:
+        ASSET_INFO[name] = {"ticker": f"{name}.IS", "cur": "TRY", "cat": "BIST"}
+    if name not in selected_display_names:
+        selected_display_names.append(name)
 
-    for code in [c.strip().upper() for c in custom_global.split(",") if c.strip()]:
-        if code not in ASSET_INFO:
-            ASSET_INFO[code] = {"ticker": code, "cur": "USD", "cat": "Global"}
-        if code not in selected_display_names:
-            selected_display_names.append(code)
+for code in global_codes:
+    if code not in ASSET_INFO:
+        ASSET_INFO[code] = {"ticker": code, "cur": "USD", "cat": "Global"}
+    if code not in selected_display_names:
+        selected_display_names.append(code)
+
+with st.sidebar.expander("TEFAS Fonu Ekle"):
+    st.caption("Fon kodunu giriniz (ör: AFT, TCD, YAC). Veri TEFAS'tan çekilir, en fazla 5 yıl geriye gider.")
+    fund_codes = custom_code_input("custom_tefas", "Fon Kodu (virgülle ayırın)", "Fon Ekle", "ör: AFT, MAC, TCD")
+
+for code in fund_codes:
+    name = f"{code} (Fon)"
+    if name not in ASSET_INFO:
+        ASSET_INFO[name] = {"ticker": code, "cur": "TRY", "cat": "TEFAS Fon"}
+    if name not in selected_display_names:
+        selected_display_names.append(name)
 
 # POZİSYON GİRİŞİ
 
@@ -178,7 +207,10 @@ if not active_names and not bond_inputs:
 
 # 2. VERİ ÇEKME
 
-tickers_to_fetch = {ASSET_INFO[n]["ticker"] for n in active_names} | {"TRY=X"}
+yahoo_names = [n for n in active_names if ASSET_INFO[n]["cat"] != "TEFAS Fon"]
+tefas_names = [n for n in active_names if ASSET_INFO[n]["cat"] == "TEFAS Fon"]
+
+tickers_to_fetch = {ASSET_INFO[n]["ticker"] for n in yahoo_names} | {"TRY=X"}
 
 @st.cache_data(ttl=900)
 def fetch_data(ticker_list):
@@ -187,6 +219,30 @@ def fetch_data(ticker_list):
     if isinstance(close, pd.Series):
         close = close.to_frame(name=ticker_list[0])
     return close
+
+@st.cache_data(ttl=3600)
+def fetch_tefas(fund_codes):
+    from tefas import Crawler
+    crawler = Crawler()
+    end = pd.Timestamp.today().normalize()
+    start = end - pd.DateOffset(years=5) + pd.DateOffset(days=1)
+    result = {}
+    for code in fund_codes:
+        series = None
+        for kind in ["YAT", "EMK", "BYF"]:
+            try:
+                df = crawler.fetch(start=start.strftime("%Y-%m-%d"), end=end.strftime("%Y-%m-%d"),
+                                   name=code, columns=["date", "price"], kind=kind)
+                if df is not None and not df.empty:
+                    s = df.set_index("date")["price"].astype(float)
+                    s.index = pd.to_datetime(s.index)
+                    s = s[s > 0]
+                    series = s[~s.index.duplicated(keep="last")].sort_index()
+                    break
+            except Exception:
+                continue
+        result[code] = series
+    return result
 
 raw_prices = fetch_data(tuple(sorted(tickers_to_fetch)))
 raw_prices.index = pd.to_datetime(raw_prices.index)
@@ -198,7 +254,7 @@ prices_try = pd.DataFrame(index=raw_prices.index)
 last_price_native = {}
 
 valid_names = []
-for name in active_names:
+for name in yahoo_names:
     t = ASSET_INFO[name]["ticker"]
     if t not in raw_prices.columns or raw_prices[t].dropna().empty:
         st.warning(f"{name} için veri bulunamadı, analiz dışı bırakıldı.")
@@ -211,12 +267,27 @@ for name in active_names:
         prices_try[name] = series
     valid_names.append(name)
 
+if tefas_names:
+    try:
+        fund_data = fetch_tefas(tuple(sorted(ASSET_INFO[n]["ticker"] for n in tefas_names)))
+    except ImportError:
+        fund_data = {}
+        st.error("TEFAS fonları için 'tefas-crawler' kütüphanesi gerekli: pip install tefas-crawler")
+    for name in tefas_names:
+        s = fund_data.get(ASSET_INFO[name]["ticker"])
+        if s is None or s.dropna().empty:
+            st.warning(f"{name} için TEFAS'tan veri çekilemedi, analiz dışı bırakıldı. Fon kodunu kontrol edin.")
+            continue
+        last_price_native[name] = float(s.dropna().iloc[-1])
+        prices_try = prices_try.join(s.rename(name), how="outer")
+        valid_names.append(name)
+
 current_returns = pd.DataFrame()
 prices = pd.DataFrame()
 if valid_names:
     prices = prices_try[valid_names]
-    current_prices = prices.dropna()
-    current_returns = np.log(current_prices / current_prices.shift(1)).dropna()
+    current_prices = prices.replace(0, np.nan).dropna()
+    current_returns = np.log(current_prices / current_prices.shift(1)).replace([np.inf, -np.inf], np.nan).dropna()
 
 # 3. TAHVİL DEĞERLEME
 
@@ -467,13 +538,13 @@ with tab3:
             end_dt = pd.to_datetime(dates["end"])
 
             mask = (prices.index >= start_dt) & (prices.index <= end_dt)
-            crash_prices = prices.loc[mask].dropna(axis=1, how='all')
+            crash_prices = prices.loc[mask].replace(0, np.nan).dropna(axis=1, how='all')
 
             if crash_prices.empty or crash_prices.shape[1] == 0:
                 st.warning(f"[{scenario_name}] Portföyünüzdeki varlıklar bu tarihte işleme açık değildi.")
                 continue
 
-            crash_returns = np.log(crash_prices / crash_prices.shift(1)).dropna()
+            crash_returns = np.log(crash_prices / crash_prices.shift(1)).replace([np.inf, -np.inf], np.nan).dropna()
             if crash_returns.empty:
                 continue
 
