@@ -35,10 +35,10 @@ Türkiye / Uluslararası filtresiyle 14 tarihsel kriz senaryosu:
 ## Kurulum
 
 ```bash
-git clone <repo-url>
+git clone https://github.com/wal3ska/risk-terminali
 cd risk-terminali
 pip install -r requirements.txt
-streamlit run risk_terminali_v4.py
+streamlit run app.py
 ```
 
 **requirements.txt**
